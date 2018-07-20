@@ -3,42 +3,39 @@
 #include "RAK811.h"
 #include "SoftwareSerial.h"
 #define WORK_MODE LoRaP2P  //  LoRaWAN or LoRaP2P
-#define CODE  PING  // PING or PONG 
+#define CODE  PING  // PING or PONG
 #define TXpin 11
 #define RXpin 10
-#define ATSerial Serial 
+#define ATSerial Serial
 SoftwareSerial DebugSerial(RXpin,TXpin);
 char* buffer = "72616B776972656C657373";
-String FREQ = "860000000";  // frequency     range:(860000000 - 1020000000)
+String FREQ = "868000000";  // frequency     range:(860000000 - 1020000000)
 
-RAK811 RAKLoRa(ATSerial);
-
-
+RAK811 RAKLoRa(ATSerial, DebugSerial);
 
 void setup() {
   // put your setup code here, to run once:
-  DebugSerial.begin(115200);
+  DebugSerial.begin(9600);
   while(DebugSerial.read()>= 0) {}
   while(!DebugSerial);
   DebugSerial.println("StartUP");
 
-  ATSerial.begin(115200);
-
-
+  ATSerial.begin(9600); // Note: Please manually set the baud rate of the WisNode device to 9600.
+  delay(100);
+  DebugSerial.println(RAKLoRa.rk_getVersion());
+  delay(200);
+  DebugSerial.println(RAKLoRa.rk_getBand());
+  delay(200);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  DebugSerial.println(RAKLoRa.rk_getVersion());
-  delay(500);
-  DebugSerial.println(RAKLoRa.rk_getBand());
-  delay(500);
   if (RAKLoRa.rk_setWorkingMode(WORK_MODE))
   {
-    DebugSerial.println("you set Working mode is OK!");
+    DebugSerial.println("You set Working mode is OK!");
     if (RAKLoRa.rk_initP2P(FREQ,7,0,1,8,14))
     {
-      DebugSerial.println("you init P2P parameter is OK!");
+      DebugSerial.println("You init P2P parameter is OK!");
       while (1)
       {
         #if  CODE == PING

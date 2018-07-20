@@ -26,17 +26,18 @@
 #define STATUS_UNKNOWN  "at+recv=100,0,0"
 #include "Arduino.h"
 
+//#define DEBUG_MODE
 
 class RAK811
 {
   public:
-  
+
  /*
   * A simplified constructor taking only a Stream ({Software/Hardware}Serial) object.
   * The serial port should already be initialised when initialising this library.
   */
-  RAK811(Stream& serial);
-  
+  RAK811(Stream& serial,Stream& serial1);
+
  /*
   * Gets the firmware version number of the module.
   * Only applies to the firmware that the module programmed for the RAK811 AT command.
@@ -76,7 +77,7 @@ class RAK811
   *        If your Band is US915 from 0 to 4.
   */
   bool rk_setRate(int rate);
-  
+
  /*
   * Set the module work mode, the module defaults to LoRaWAN mode..
   * mode  = 0: Set the module to LoRaWAN mode.
@@ -135,7 +136,7 @@ class RAK811
  /*
   * After joining the network, send the packet at the specified application port.
   * type : Packet type.(0,1)  0:send unconfirmed packets.  1:send confirmed packets.
-  * port : The port number.(1-223) 
+  * port : The port number.(1-223)
   * datahex : hex value(no space). max 64 byte.
   * This function can only be used in module work in LoRaWAN mode.
   */
@@ -143,17 +144,17 @@ class RAK811
 
  /*
   * Returns the data or event information received by the module.
-  * 
+  *
   */
   String rk_recvData(void);
-  
+
  /*
   * Get the parameters configured in the LoRaP2P mode
   * it will used to the rk_sendDataContinuously and rk_recvDataContinuously command.
   * The returned string represents the meaning of : OK[<FREQ>, <SF>, <BW>, <CR>, <PRlen>, <PWR>]
   */
   String rk_getP2PConfig(void);
-  
+
  /*
   * Initialize the required parameters in LoRaP2P mode.
   * You must first switch the module operating mode to LoRaP2P mode
@@ -184,13 +185,13 @@ class RAK811
 
  /*
   * Set LoRaP2P Tx continues stop. Radio will switch to sleep mode .
-  * 
+  *
   */
   bool rk_stopSendP2PData(void);
 
  /*
   * Set LoRaP2P Rx continues stop.Radio will switch to sleep mode .
-  * 
+  *
   */
   bool rk_stopRecvP2PData(void);
 
@@ -229,9 +230,11 @@ class RAK811
   * If the RAK811 replies with multiple line, only the first line will be returned.
   */
   String sendRawCommand(String command);
-  
+
   private:
   Stream& _serial;
+
+  Stream& _serial1;
 
   String _devADDR = "00112233";
 
@@ -244,6 +247,6 @@ class RAK811
   String _appKEY = "";
 
   String _appsKEY = "";
-  
+
 };
 #endif

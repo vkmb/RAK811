@@ -18,10 +18,11 @@ extern "C" {
 /*
   @param serial Needs to be an already opened Stream ({Software/Hardware}Serial) to write to and read from.
 */
-RAK811::RAK811(Stream& serial):
-_serial(serial)
+RAK811::RAK811(Stream& serial,Stream& serial1):
+_serial(serial),_serial1(serial1)
 {
   _serial.setTimeout(2000);
+  _serial1.setTimeout(1000);
 }
 
 String RAK811::rk_getVersion()
@@ -52,7 +53,7 @@ bool RAK811::rk_setRate(int rate)
   {
     return true;
   }
-  else 
+  else
   {
     return false;
   }
@@ -102,7 +103,7 @@ bool RAK811::rk_setWorkingMode(int mode)
   {
     return true;
   }
-  else 
+  else
   {
     return false;
   }
@@ -122,15 +123,11 @@ bool RAK811::rk_joinLoRaNetwork(int mode)
     default:
       return false;
   }
-//  _serial.setTimeout(8000);
-//  Serial.println(_serial.readStringUntil('\n'));
-//  _serial.setTimeout(2000);
-//  delay(1000);
   if (ver.startsWith("OK"))
   {
     return true;
   }
-  else 
+  else
   {
     return false;
   }
@@ -177,7 +174,7 @@ bool RAK811::rk_initOTAA(String devEUI, String appEUI, String appKEY)
   {
     return true;
   }
-  else 
+  else
   {
     return false;
   }
@@ -217,7 +214,7 @@ bool RAK811::rk_initABP(String devADDR, String nwksKEY, String appsKEY)
   {
     return true;
   }
-  else 
+  else
   {
     return false;
   }
@@ -233,16 +230,19 @@ bool RAK811::rk_sendData(int type, int port, char* datahex)
   {
     return true;
   }
-  else 
+  else
   {
     return false;
-  } 
+  }
 }
 
 String RAK811::rk_recvData(void)
 {
   _serial.setTimeout(2000);
   String ret = _serial.readStringUntil('\n');
+#if defined DEBUG_MODE
+  _serial1.println("-> " + ret);
+#endif
   ret.trim();
   return ret;
 }
@@ -257,7 +257,7 @@ bool RAK811::rk_setConfig(String Key,String Value)
   {
     return true;
   }
-  else 
+  else
   {
     return false;
   }
@@ -267,7 +267,7 @@ String RAK811::rk_getConfig(String Key)
 {
   String ret = sendRawCommand("at+get_config=" + Key);
   ret.trim();
-  return ret; 
+  return ret;
 }
 
 String RAK811::rk_getP2PConfig(void)
@@ -287,7 +287,7 @@ bool RAK811::rk_initP2P(String FREQ, int SF, int BW, int CR, int PRlen, int PWR)
   {
     return true;
   }
-  else 
+  else
   {
     return false;
   }
@@ -311,7 +311,7 @@ bool RAK811::rk_recvP2PData(int report_en)
   {
     return true;
   }
-  else 
+  else
   {
     return false;
   }
@@ -327,7 +327,7 @@ bool RAK811::rk_sendP2PData(int CNTS, String interver, char* DATAHex)
   {
     return true;
   }
-  else 
+  else
   {
     return false;
   }
@@ -340,10 +340,10 @@ bool RAK811::rk_stopSendP2PData(void)
   {
     return true;
   }
-  else 
+  else
   {
     return false;
-  }  
+  }
 }
 
 bool RAK811::rk_stopRecvP2PData(void)
@@ -353,10 +353,10 @@ bool RAK811::rk_stopRecvP2PData(void)
   {
     return true;
   }
-  else 
+  else
   {
     return false;
-  }  
+  }
 }
 
 String RAK811::rk_checkStatusStatistics(void)
@@ -373,10 +373,10 @@ bool RAK811::rk_cleanStatusStatistics(void)
   {
     return true;
   }
-  else 
+  else
   {
     return false;
-  }  
+  }
 }
 
 bool RAK811::rk_setUARTConfig(int Baud, int Data_bits, int Parity, int Stop_bits, int Flow_ctrl)
@@ -389,7 +389,7 @@ bool RAK811::rk_setUARTConfig(int Baud, int Data_bits, int Parity, int Stop_bits
   {
     return true;
   }
-  else 
+  else
   {
     return false;
   }
@@ -398,11 +398,22 @@ bool RAK811::rk_setUARTConfig(int Baud, int Data_bits, int Parity, int Stop_bits
 String RAK811::sendRawCommand(String command)
 {
   delay(100);
-  while(_serial.available())
-  _serial.read();
+  while(_serial.available()){
+#if defined DEBUG_MODE
+    _serial1.println("-> " + _serial.readStringUntil('\0'));
+#else
+    _serial.read();
+#endif
+  }
+  delay(100);
   _serial.println(command);
+  delay(200);
   String ret = _serial.readStringUntil('\n');
   ret.trim();
+  delay(500);
+#if defined DEBUG_MODE
+  _serial1.println("<- " + command);
+  _serial1.println("-> " + ret);
+#endif
   return ret;
 }
-
