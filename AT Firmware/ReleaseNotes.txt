@@ -3,7 +3,7 @@ Version 2.0.3.0
 features
 1. Adapt to Actility certification test
 2. Integrate all bands and use the at+band command to switch regional bands.
-   The currently supported bands are: EU868, US915, AU915, KR920, AS923£¬IN865
+   The currently supported bands are: EU868, US915, AU915, KR920, AS923, IN865
 
 bugs
 1. Fix device enters the sleep state by sending the at+sleep command. 
@@ -13,7 +13,7 @@ bugs
 version 2.0.2.2:
 features
 1. update LoraWAN 1.0.1 to LoraWAN 1.0.2, support regions: 
-   EU868, US915, AU915, KR920, AS923£¬IN865
+   EU868, US915, AU915, KR920, AS923, IN865
 2. Add Peripheral command
     at+rd_reg=<reg_addr>[,<len>]
 	at+wr_reg=<reg_addr>,<len>,<databuf>
